@@ -19,6 +19,7 @@
   5. Скопируйте значения из firebaseConfig и вставьте ниже
   ============================================================
 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
@@ -800,6 +801,68 @@
   .footer-links a { font-size: 0.75rem; color: var(--gray); text-decoration: none; letter-spacing: 1px; transition: color 0.3s; }
   .footer-links a:hover { color: var(--gold); }
 
+  /* QR Section */
+  #qr-section {
+    padding: 80px 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+    border-top: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(18,32,64,0.6) 0%, rgba(10,22,40,0) 100%);
+  }
+  .qr-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    color: var(--white);
+    letter-spacing: 2px;
+    text-align: center;
+  }
+  .qr-label span { color: var(--gold); }
+  .qr-sub {
+    font-size: 0.85rem;
+    color: var(--gray);
+    letter-spacing: 1.5px;
+    text-align: center;
+    max-width: 340px;
+  }
+  .qr-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 0 40px rgba(201,168,76,0.18), 0 0 0 1px rgba(201,168,76,0.3);
+  }
+  .qr-card img, .qr-card canvas { display: block; border-radius: 4px; }
+  .qr-url {
+    font-size: 0.72rem;
+    color: var(--gray);
+    letter-spacing: 1px;
+    text-align: center;
+    margin-top: 4px;
+  }
+  .qr-print-btn {
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    font-family: 'Jost', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    padding: 12px 32px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.3s, color 0.3s;
+    text-transform: uppercase;
+  }
+  .qr-print-btn:hover { background: var(--gold); color: var(--navy); }
+  @media(max-width:600px) {
+    #qr-section { padding: 60px 24px; }
+  }
+  @media print {
+    body > *:not(#qr-section) { display: none !important; }
+    #qr-section { border: none; padding: 40px; }
+    .qr-print-btn { display: none; }
+  }
+
   /* NOTIFICATION */
   .notif {
     position: fixed;
@@ -1556,6 +1619,17 @@
 </section>
 
 <!-- FOOTER -->
+<!-- QR CODE SECTION -->
+<section id="qr-section" class="reveal">
+  <div class="qr-label">Сканируй и <span>заказывай</span></div>
+  <div class="qr-sub">Наведите камеру телефона на код — меню откроется мгновенно</div>
+  <div class="qr-card">
+    <div id="qrcode"></div>
+  </div>
+  <div class="qr-url" id="qrUrlText"></div>
+  <button class="qr-print-btn" onclick="window.print()">Распечатать QR</button>
+</section>
+
 <footer>
   <div class="footer-logo">БИЗНЕС<span> ХАБ</span></div>
   <div class="footer-copy" id="footerCopy">© 2025 Бизнес Хаб. Все права защищены.</div>
@@ -2588,6 +2662,18 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   // Open admin if URL has #admin
   if (window.location.hash === '#admin') openAdmin();
+
+  // Generate QR code
+  const siteUrl = 'https://eskenkydyr-source.github.io/Kitchen_/';
+  document.getElementById('qrUrlText').textContent = siteUrl;
+  new QRCode(document.getElementById('qrcode'), {
+    text: siteUrl,
+    width: 200,
+    height: 200,
+    colorDark: '#0a1628',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.H
+  });
 });
 
 window.addEventListener('hashchange', () => {
