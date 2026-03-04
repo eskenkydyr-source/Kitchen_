@@ -1370,6 +1370,7 @@
         <button class="admin-tab-btn"        data-tab="spaces"   onclick="switchAdminTab('spaces')">Пространства & Цены</button>
         <button class="admin-tab-btn"        data-tab="contacts" onclick="switchAdminTab('contacts')">Контакты</button>
         <button class="admin-tab-btn"        data-tab="menu"     onclick="switchAdminTab('menu')">Меню</button>
+        <button class="admin-tab-btn"        data-tab="orders"   onclick="switchAdminTab('orders')">Заказы</button>
         <button class="admin-tab-btn"        data-tab="settings" onclick="switchAdminTab('settings')">Настройки</button>
       </div>
 
@@ -1465,6 +1466,15 @@
           <button class="admin-add-btn" onclick="adminAddItem()">+ Добавить позицию</button>
         </div>
         <button class="admin-export-btn" onclick="adminExport()">📥 Экспорт меню в JSON</button>
+      </div>
+
+      <!-- TAB: ЗАКАЗЫ -->
+      <div class="admin-tab-content" data-tab="orders">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <p class="admin-hint">Новые заказы из меню появляются здесь в реальном времени.</p>
+          <button onclick="loadOrders()" style="background:transparent;border:1px solid var(--border);color:var(--gold);padding:8px 16px;font-family:'Jost',sans-serif;font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;">↻ Обновить</button>
+        </div>
+        <div id="ordersContainer"><p class="admin-hint">Загрузка заказов...</p></div>
       </div>
 
       <!-- TAB: НАСТРОЙКИ -->
@@ -2046,6 +2056,9 @@ function renderAdminPanel() {
   // Menu
   renderAdminCatSelect();
   renderAdminItems();
+
+  // Orders
+  loadOrders();
 }
 
 function renderAdminFeatures() {
@@ -2277,7 +2290,15 @@ function renderCart() {
       </div>
       <div class="form-group">
         <label>Комната / место</label>
-        <input type="text" id="orderRoom" placeholder="Переговорная Каспий / Open Space место 5">
+        <select id="orderRoom">
+          <option value="" disabled selected>Выберите комнату или место</option>
+          ${(siteData.spaces||[]).map(s => {
+            if (s.capacity && s.capacity.includes('20')) {
+              return Array.from({length:20},(_,k)=>`<option value="Open Space — место ${k+1}">Open Space — место ${k+1}</option>`).join('');
+            }
+            return `<option value="${s.name}">${s.name}</option>`;
+          }).join('')}
+        </select>
       </div>
       <button class="btn-submit" onclick="submitOrder()" style="margin-top:8px;">Оформить заказ</button>
     </div>
@@ -2297,13 +2318,81 @@ function removeItem(i) {
   renderCart();
 }
 
-function submitOrder() {
-  const name = document.getElementById('orderName')?.value;
+async function submitOrder() {
+  const name = document.getElementById('orderName')?.value?.trim();
+  const room = document.getElementById('orderRoom')?.value;
   if (!name) { alert('Введите ваше имя'); return; }
+  if (!room) { alert('Выберите комнату или место'); return; }
+
+  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const order = {
+    name,
+    room,
+    items: cart.map(i => ({ name: i.name, price: i.price, qty: i.qty })),
+    total,
+    time: new Date().toLocaleString('ru-RU'),
+    timestamp: Date.now(),
+    status: 'новый'
+  };
+
+  if (db) {
+    try { await db.collection('orders').add(order); } catch(e) { console.warn('Ошибка сохранения заказа:', e.message); }
+  }
+
   cart = [];
   updateCartCount();
   closeCart();
-  showNotif('Заказ принят!', 'Мы доставим ваш заказ в течение 10–15 минут.');
+  showNotif('Заказ принят!', `${name}, доставим в течение 10–15 минут.`);
+}
+
+// ============================================================
+//  ORDERS (admin view)
+// ============================================================
+async function loadOrders() {
+  const container = document.getElementById('ordersContainer');
+  if (!container) return;
+  if (!db) {
+    container.innerHTML = '<p class="admin-hint">⚠️ Firebase не настроен — заказы не сохраняются.</p>';
+    return;
+  }
+  container.innerHTML = '<p class="admin-hint">Загрузка...</p>';
+  try {
+    const snap = await db.collection('orders').orderBy('timestamp','desc').limit(50).get();
+    if (snap.empty) {
+      container.innerHTML = '<p class="admin-hint">Заказов пока нет.</p>';
+      return;
+    }
+    container.innerHTML = snap.docs.map(doc => {
+      const o = doc.data();
+      const itemsList = (o.items||[]).map(i => `${i.name}${i.qty>1?' × '+i.qty:''}`).join(', ');
+      return `
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);padding:20px;margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+            <div>
+              <div style="color:var(--white);font-size:0.95rem;font-weight:500;">👤 ${o.name} — 📍 ${o.room}</div>
+              <div style="color:var(--gray);font-size:0.82rem;margin-top:6px;">${itemsList}</div>
+              <div style="color:var(--gray);font-size:0.75rem;margin-top:4px;">🕐 ${o.time}</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--gold);">${(o.total||0).toLocaleString()} ₸</div>
+              <select onchange="updateOrderStatus('${doc.id}',this.value)" style="margin-top:6px;background:var(--navy);border:1px solid var(--border);color:var(--gold);font-family:'Jost',sans-serif;font-size:0.72rem;padding:4px 8px;cursor:pointer;outline:none;">
+                <option value="новый"     ${o.status==='новый'    ?'selected':''}>🟡 Новый</option>
+                <option value="готовится" ${o.status==='готовится'?'selected':''}>🔵 Готовится</option>
+                <option value="доставлен" ${o.status==='доставлен'?'selected':''}>🟢 Доставлен</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  } catch(e) {
+    container.innerHTML = `<p class="admin-hint">Ошибка загрузки: ${e.message}</p>`;
+  }
+}
+
+async function updateOrderStatus(id, status) {
+  if (!db) return;
+  try { await db.collection('orders').doc(id).update({ status }); } catch(e) {}
 }
 
 // ============================================================
