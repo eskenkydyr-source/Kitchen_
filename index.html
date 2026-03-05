@@ -1870,10 +1870,10 @@ const DEFAULT_DATA = {
     ]
   },
   spaces: [
-    { num: '01', icon: '🤝', name: 'Переговорная «Каспий»',    desc: 'Элегантная комната для деловых переговоров и важных встреч с клиентами.',                      tags: ['Проектор','Whiteboard','ТВ'],               capacity: '👥 До 8 человек' },
-    { num: '02', icon: '💡', name: 'Переговорная «Мангыстау»', desc: 'Просторный зал для командных совещаний, брейнштормов и воркшопов.',                              tags: ['Проектор','Whiteboard','Кондиционер'],      capacity: '👥 До 12 человек' },
-    { num: '03', icon: '🎯', name: 'Переговорная «Атырау»',    desc: 'Компактная комната для небольших рабочих сессий, онлайн-звонков и интервью.',                    tags: ['ТВ-экран','Webcam','Микрофон'],            capacity: '👥 До 4 человек' },
-    { num: 'OS', icon: '🌿', name: 'Open Space',               desc: 'Открытое рабочее пространство для фрилансеров и удалённых команд. Тихая атмосфера.',            tags: ['Wi-Fi 1 Гбит','Принтер','Locker'],         capacity: '💺 20 рабочих мест' }
+    { num: '01', icon: '🤝', name: 'Meeting Room',           desc: 'Элегантная комната для деловых переговоров и важных встреч с клиентами.',         tags: ['Проектор','Whiteboard','ТВ'],          capacity: '👥 До 8 человек'   },
+    { num: '02', icon: '🎙', name: 'Podcast Stream Studio',  desc: 'Профессиональная студия для подкастов, стримов, интервью и видеозаписей.',          tags: ['Микрофон','Камера','Акустика'],        capacity: '👥 До 4 человек'   },
+    { num: '03', icon: '📋', name: 'Conference Room',        desc: 'Просторный зал для командных совещаний, брейнштормов и корпоративных мероприятий.',tags: ['Проектор','Whiteboard','Кондиционер'], capacity: '👥 До 12 человек'  },
+    { num: 'OS', icon: '🌿', name: 'Open Space',             desc: 'Открытое рабочее пространство для фрилансеров и удалённых команд. Тихая атмосфера.', tags: ['Wi-Fi 1 Гбит','Принтер','Locker'],   capacity: '💺 20 рабочих мест' }
   ],
   prices: [
     { name: 'Переговорная комната', sub: 'Оснащённый зал для встреч', price: 2500, period: '/ час'  },
@@ -1883,8 +1883,8 @@ const DEFAULT_DATA = {
   contact: {
     address:   'г. Актау, Казахстан',
     hours:     'Пн–Пт: 08:00 – 22:00\nСб–Вс: 10:00 – 20:00',
-    phone:     '+7 701 000 00 00',
-    instagram: '#',
+    phone:     '+7 705 488 26 20',
+    instagram: 'https://www.instagram.com/business_hub_aktau',
     telegram:  '#'
   },
   footer: { copyright: '© 2025 Бизнес Хаб. Все права защищены.' },
@@ -2142,7 +2142,8 @@ function applyData(data) {
   document.getElementById('contact-address').innerHTML = (data.contact.address || '').replace(/\n/g, '<br>');
   document.getElementById('contact-hours').innerHTML   = (data.contact.hours   || '').replace(/\n/g, '<br>');
   const phone = data.contact.phone || '';
-  document.getElementById('contact-phone').innerHTML   = `<a href="tel:${phone.replace(/\s/g,'')}">${phone}</a>`;
+  const phoneClean = phone.replace(/[\s\-]/g,'');
+  document.getElementById('contact-phone').innerHTML = `<a href="tel:${phoneClean}">${phone}</a> &nbsp;<a href="https://wa.me/${phoneClean.replace('+','')}" target="_blank" style="background:#25D366;color:#fff;padding:4px 10px;border-radius:4px;font-size:0.75rem;text-decoration:none;letter-spacing:1px;">WhatsApp</a>`;
   document.getElementById('contactInstagram').href     = data.contact.instagram || '#';
   document.getElementById('contactTelegram').href      = data.contact.telegram  || '#';
   document.getElementById('footerInstagram').href      = data.contact.instagram || '#';
