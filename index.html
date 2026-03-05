@@ -1242,6 +1242,147 @@
     .spaces-grid { grid-template-columns: 1fr; }
     .about-features { grid-template-columns: 1fr; }
   }
+
+  /* ── LANGUAGE TOGGLE ── */
+  .lang-toggle {
+    display: flex;
+    gap: 2px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 3px;
+    margin-left: 12px;
+  }
+  .lang-btn {
+    background: transparent;
+    border: none;
+    color: var(--gray);
+    font-family: 'Jost', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background 0.2s, color 0.2s;
+    text-transform: uppercase;
+  }
+  .lang-btn.active { background: var(--gold); color: var(--navy); }
+  .lang-btn:hover:not(.active) { color: var(--gold); }
+
+  /* ── GALLERY ── */
+  #gallery {
+    padding: 100px 60px;
+  }
+  .gallery-header {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 260px 260px;
+    gap: 12px;
+  }
+  .gallery-item {
+    overflow: hidden;
+    border-radius: 4px;
+    position: relative;
+    cursor: pointer;
+  }
+  .gallery-item:first-child {
+    grid-column: 1;
+    grid-row: 1 / 3;
+  }
+  .gallery-item:nth-child(4) {
+    grid-column: 3;
+    grid-row: 1 / 3;
+  }
+  .gallery-item img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.6s cubic-bezier(0.22,1,0.36,1), filter 0.4s;
+    filter: brightness(0.8) saturate(1.1);
+  }
+  .gallery-item:hover img { transform: scale(1.07); filter: brightness(0.95) saturate(1.2); }
+  .gallery-item::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(10,22,40,0.5) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  @media (max-width: 900px) {
+    #gallery { padding: 60px 24px; }
+    .gallery-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+    .gallery-item:first-child, .gallery-item:nth-child(4) { grid-column: auto; grid-row: auto; }
+    .gallery-item { height: 200px; }
+  }
+  @media (max-width: 600px) {
+    .gallery-grid { grid-template-columns: 1fr; }
+    .gallery-item { height: 220px; }
+  }
+
+  /* ── KASPI MODAL ── */
+  .kaspi-modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 1100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .kaspi-modal-overlay.open { display: flex; }
+  .kaspi-modal {
+    background: var(--navy-mid);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 36px 40px;
+    text-align: center;
+    max-width: 340px;
+    width: 90%;
+    position: relative;
+  }
+  .kaspi-modal-close {
+    position: absolute; top: 14px; right: 16px;
+    background: none; border: none;
+    color: var(--gray); font-size: 1.1rem;
+    cursor: pointer;
+  }
+  .kaspi-logo {
+    font-family: 'Jost', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #f14635;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .kaspi-amount {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--gold);
+    margin-bottom: 20px;
+  }
+  .kaspi-qr-wrap {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    display: inline-block;
+    margin-bottom: 16px;
+  }
+  .kaspi-hint {
+    font-size: 0.78rem;
+    color: var(--gray);
+    letter-spacing: 1px;
+    line-height: 1.6;
+  }
+  .kaspi-phone-num {
+    color: var(--gold);
+    font-weight: 600;
+    display: block;
+    margin-top: 6px;
+    font-size: 1rem;
+  }
 </style>
 </head>
 <body>
@@ -1253,12 +1394,17 @@
 <nav id="navbar">
   <a href="#hero" class="logo">БИЗНЕС<span> ХАБ</span></a>
   <ul class="nav-links">
-    <li><a href="#about">О нас</a></li>
-    <li><a href="#spaces">Пространства</a></li>
-    <li><a href="#menu">Меню</a></li>
-    <li><a href="#contact">Контакты</a></li>
-    <li><a href="#booking" class="nav-book">Забронировать</a></li>
+    <li><a href="#about"   id="navAbout">О нас</a></li>
+    <li><a href="#spaces"  id="navSpaces">Пространства</a></li>
+    <li><a href="#menu"    id="navMenu">Меню</a></li>
+    <li><a href="#contact" id="navContacts">Контакты</a></li>
+    <li><a href="#booking" class="nav-book" id="navBook">Забронировать</a></li>
   </ul>
+  <div class="lang-toggle">
+    <button class="lang-btn active" onclick="setLang('ru')">RU</button>
+    <button class="lang-btn"        onclick="setLang('kz')">KZ</button>
+    <button class="lang-btn"        onclick="setLang('en')">EN</button>
+  </div>
 </nav>
 
 <!-- HERO -->
@@ -1299,6 +1445,34 @@
       <div class="divider"></div>
       <p class="section-desc" id="aboutDesc">Бизнес Хаб — это современное коворкинг-пространство в сердце Актау.</p>
       <div class="about-features" id="aboutFeatures"></div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="gallery">
+  <div class="gallery-header reveal">
+    <div class="section-tag" id="galleryTag">Атмосфера</div>
+    <h2 class="section-title">Наше <em id="galleryTitleEm">пространство</em></h2>
+  </div>
+  <div class="gallery-grid">
+    <div class="gallery-item reveal">
+      <img src="https://images.unsplash.com/photo-1497366754035-f200968a6f72?w=800&h=1200&fit=crop&auto=format" alt="Коворкинг">
+    </div>
+    <div class="gallery-item reveal">
+      <img src="https://images.unsplash.com/photo-1600508774634-4e11d34730e2?w=800&h=500&fit=crop&auto=format" alt="Рабочее место">
+    </div>
+    <div class="gallery-item reveal">
+      <img src="https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=800&h=500&fit=crop&auto=format" alt="Переговорная">
+    </div>
+    <div class="gallery-item reveal">
+      <img src="https://images.unsplash.com/photo-1556761175-b413da4baf72?w=800&h=1200&fit=crop&auto=format" alt="Команда">
+    </div>
+    <div class="gallery-item reveal">
+      <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&h=500&fit=crop&auto=format" alt="Офис">
+    </div>
+    <div class="gallery-item reveal">
+      <img src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=500&fit=crop&auto=format" alt="Работа">
     </div>
   </div>
 </section>
@@ -1651,6 +1825,22 @@
   </div>
 </div>
 
+<!-- KASPI MODAL -->
+<div class="kaspi-modal-overlay" id="kaspiModal">
+  <div class="kaspi-modal">
+    <button class="kaspi-modal-close" onclick="closeKaspi()">✕</button>
+    <div class="kaspi-logo">Kaspi Pay</div>
+    <div class="kaspi-amount" id="kaspiAmount"></div>
+    <div class="kaspi-qr-wrap">
+      <div id="kaspiQR"></div>
+    </div>
+    <div class="kaspi-hint">
+      Откройте приложение Kaspi и отсканируйте код,<br>или переведите по номеру:
+      <span class="kaspi-phone-num" id="kaspiPhoneDisplay"></span>
+    </div>
+  </div>
+</div>
+
 <!-- NOTIFICATION -->
 <div class="notif" id="notif">
   <div class="notif-title" id="notifTitle">Успешно!</div>
@@ -1698,7 +1888,7 @@ const DEFAULT_DATA = {
     telegram:  '#'
   },
   footer: { copyright: '© 2025 Бизнес Хаб. Все права защищены.' },
-  settings: { password: 'kitchen2025', serviceCharge: '10%' },
+  settings: { password: 'kitchen2025', serviceCharge: '10%', kaspiPhone: '+7 701 000 00 00' },
   menu: {
     coffee: {
       label: '☕ Кофе', emoji: '☕',
@@ -2448,7 +2638,7 @@ function renderCart() {
   const el     = document.getElementById('cartItems');
   const footer = document.getElementById('cartFooter');
   if (cart.length === 0) {
-    el.innerHTML     = '<div class="empty-cart">Ваша корзина пуста.<br>Добавьте что-нибудь из меню!</div>';
+    el.innerHTML     = `<div class="empty-cart">${TRANSLATIONS[currentLang].cartEmpty}</div>`;
     footer.innerHTML = '';
     return;
   }
@@ -2467,20 +2657,21 @@ function renderCart() {
     </div>
   `).join('');
   const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const t = TRANSLATIONS[currentLang];
   footer.innerHTML = `
     <div class="cart-total">
-      <span class="total-label">Итого</span>
+      <span class="total-label">${t.cartTotal}</span>
       <span class="total-val">${total.toLocaleString()} ₸</span>
     </div>
     <div class="cart-form">
       <div class="form-group" style="margin-top:20px;">
-        <label>Ваше имя</label>
+        <label>${t.cartName}</label>
         <input type="text" id="orderName" placeholder="Алибек">
       </div>
       <div class="form-group">
-        <label>Комната / место</label>
+        <label>${t.cartRoom}</label>
         <select id="orderRoom">
-          <option value="" disabled selected>Выберите комнату или место</option>
+          <option value="" disabled selected>${t.cartRoomPlaceholder}</option>
           ${(siteData.spaces||[]).map(s => {
             if (s.capacity && s.capacity.includes('20')) {
               return Array.from({length:20},(_,k)=>`<option value="Open Space — место ${k+1}">Open Space — место ${k+1}</option>`).join('');
@@ -2489,7 +2680,8 @@ function renderCart() {
           }).join('')}
         </select>
       </div>
-      <button class="btn-submit" onclick="submitOrder()" style="margin-top:8px;">Оформить заказ</button>
+      <button class="btn-submit" onclick="submitOrder()" style="margin-top:8px;">${t.cartSubmit}</button>
+      <button class="btn-submit" onclick="openKaspi(${total})" style="margin-top:8px;background:transparent;border:1px solid #f14635;color:#f14635;">${t.cartKaspi}</button>
     </div>
   `;
 }
@@ -2650,6 +2842,101 @@ function initReveal() {
 }
 
 // ============================================================
+//  TRANSLATIONS
+// ============================================================
+let currentLang = localStorage.getItem('lang') || 'ru';
+
+const TRANSLATIONS = {
+  ru: {
+    navAbout:'О нас', navSpaces:'Пространства', navMenu:'Меню', navContacts:'Контакты', navBook:'Забронировать',
+    heroScroll:'Прокрутите',
+    btnBook:'Забронировать', btnOrder:'Сделать заказ', btnSpaces:'Наши пространства',
+    galleryTag:'Атмосфера', galleryTitleEm:'пространство',
+    qrLabel:'Сканируй и', qrLabelEm:'заказывай', qrSub:'Наведите камеру телефона на код — меню откроется мгновенно', qrPrint:'Распечатать QR',
+    cartTitle:'Ваша корзина', cartTotal:'Итого', cartName:'Ваше имя', cartRoom:'Комната / место',
+    cartRoomPlaceholder:'Выберите комнату или место', cartSubmit:'Оформить заказ', cartKaspi:'Оплатить через Kaspi',
+    cartEmpty:'Ваша корзина пуста.<br>Добавьте что-нибудь из меню!',
+  },
+  kz: {
+    navAbout:'Біз туралы', navSpaces:'Кеңістіктер', navMenu:'Мәзір', navContacts:'Байланыс', navBook:'Брондау',
+    heroScroll:'Айналдыру',
+    btnBook:'Брондау', btnOrder:'Тапсырыс беру', btnSpaces:'Біздің кеңістіктер',
+    galleryTag:'Атмосфера', galleryTitleEm:'кеңістік',
+    qrLabel:'Сканерлеп', qrLabelEm:'тапсырыс бер', qrSub:'Телефон камерасын кодқа бағыттаңыз — мәзір бірден ашылады', qrPrint:'QR басып шығару',
+    cartTitle:'Сіздің себет', cartTotal:'Барлығы', cartName:'Сіздің атыңыз', cartRoom:'Бөлме / орын',
+    cartRoomPlaceholder:'Бөлме немесе орын таңдаңыз', cartSubmit:'Тапсырысты рәсімдеу', cartKaspi:'Kaspi арқылы төлеу',
+    cartEmpty:'Себетіңіз бос.<br>Мәзірден бірдеңе қосыңыз!',
+  },
+  en: {
+    navAbout:'About', navSpaces:'Spaces', navMenu:'Menu', navContacts:'Contacts', navBook:'Book',
+    heroScroll:'Scroll',
+    btnBook:'Book now', btnOrder:'Order food', btnSpaces:'Our spaces',
+    galleryTag:'Atmosphere', galleryTitleEm:'space',
+    qrLabel:'Scan &', qrLabelEm:'order', qrSub:'Point your camera at the code — the menu opens instantly', qrPrint:'Print QR',
+    cartTitle:'Your cart', cartTotal:'Total', cartName:'Your name', cartRoom:'Room / seat',
+    cartRoomPlaceholder:'Select room or seat', cartSubmit:'Place order', cartKaspi:'Pay via Kaspi',
+    cartEmpty:'Your cart is empty.<br>Add something from the menu!',
+  }
+};
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('lang', lang);
+  const t = TRANSLATIONS[lang];
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.textContent === lang.toUpperCase()));
+  const ids = {
+    navAbout:'navAbout', navSpaces:'navSpaces', navMenu:'navMenu', navContacts:'navContacts', navBook:'navBook',
+    galleryTag:'galleryTag', galleryTitleEm:'galleryTitleEm',
+    qrLabelEm:'qrLabelEm', qrSub:'qrSub', qrPrint:'qrPrint',
+  };
+  for (const [key, id] of Object.entries(ids)) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = t[key];
+  }
+  // qr label (has <span>)
+  const qrLabel = document.querySelector('.qr-label');
+  if (qrLabel) qrLabel.innerHTML = `${t.qrLabel} <span>${t.qrLabelEm}</span>`;
+  // hero scroll
+  const scrollSpan = document.querySelector('.hero-scroll span');
+  if (scrollSpan) scrollSpan.textContent = t.heroScroll;
+  // hero buttons
+  const heroBtns = document.querySelectorAll('.hero-ctas a');
+  if (heroBtns[0]) heroBtns[0].textContent = t.btnBook;
+  if (heroBtns[1]) heroBtns[1].textContent = t.btnOrder;
+  if (heroBtns[2]) heroBtns[2].textContent = t.btnSpaces;
+  // cart title
+  const cartTitle = document.querySelector('#cartModal .modal-title');
+  if (cartTitle) cartTitle.textContent = t.cartTitle;
+  // re-render cart if open
+  if (cart.length > 0) renderCart();
+}
+
+// ============================================================
+//  KASPI PAY
+// ============================================================
+let kaspiQRinstance = null;
+
+function openKaspi(total) {
+  const phone = (siteData.settings && siteData.settings.kaspiPhone) || '+7 701 000 00 00';
+  const phoneClean = phone.replace(/\D/g,'');
+  document.getElementById('kaspiAmount').textContent = total.toLocaleString() + ' ₸';
+  document.getElementById('kaspiPhoneDisplay').textContent = phone;
+  const qrEl = document.getElementById('kaspiQR');
+  qrEl.innerHTML = '';
+  const kaspiUrl = `https://kaspi.kz/pay?phone=${phoneClean}&amount=${total}`;
+  kaspiQRinstance = new QRCode(qrEl, {
+    text: kaspiUrl, width: 180, height: 180,
+    colorDark: '#0a0a0a', colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.H
+  });
+  document.getElementById('kaspiModal').classList.add('open');
+}
+
+function closeKaspi() {
+  document.getElementById('kaspiModal').classList.remove('open');
+}
+
+// ============================================================
 //  INIT
 // ============================================================
 window.addEventListener('DOMContentLoaded', async () => {
@@ -2660,6 +2947,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   // Set min date for booking
   const dateInput = document.getElementById('bookingDate');
   if (dateInput) dateInput.min = new Date().toISOString().split('T')[0];
+
+  // Apply saved language
+  setLang(currentLang);
 
   // Open admin if URL has #admin
   if (window.location.hash === '#admin') openAdmin();
