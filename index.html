@@ -1458,8 +1458,8 @@
   }
   .kaspi-open-btn:hover { background: #d63020; }
   /* На десктопе кнопку скрываем, на мобиле QR скрываем */
-  @media (min-width: 601px) { .kaspi-mobile-only { display: none !important; } }
-  @media (max-width: 600px)  { .kaspi-desktop-only { display: none !important; } }
+  @media (min-width: 769px) { .kaspi-mobile-only { display: none !important; } }
+  @media (max-width: 768px)  { .kaspi-desktop-only { display: none !important; } }
 </style>
 </head>
 <body>
@@ -3012,7 +3012,7 @@ function openKaspi(total) {
   if (phoneDisplayMobile) phoneDisplayMobile.textContent = phone;
   const openBtn = document.getElementById('kaspiOpenBtn');
   if (openBtn) openBtn.href = kaspiUrl;
-  const isMobile = window.innerWidth <= 600;
+  const isMobile = window.innerWidth <= 768;
   if (!isMobile) {
     const qrEl = document.getElementById('kaspiQR');
     qrEl.innerHTML = '';
