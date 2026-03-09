@@ -1280,7 +1280,21 @@
       stroke-linecap: round;
       stroke-linejoin: round;
     }
-    .mobile-nav a.active, .mobile-nav a:hover { color: var(--gold); }
+    .mobile-nav a.active { color: var(--gold); }
+    .mobile-nav a.active svg { stroke: var(--gold); }
+    .mobile-nav a.active::before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: 50%; transform: translateX(-50%);
+      width: 24px; height: 2px;
+      background: var(--gold);
+      border-radius: 2px;
+    }
+    .mobile-nav a {
+      position: relative;
+    }
+    .mobile-nav a:hover { color: var(--gold); }
     /* Отступ чтобы контент не прятался за нижним баром */
     body { padding-bottom: 72px; }
   }
@@ -3049,19 +3063,33 @@ window.addEventListener('DOMContentLoaded', async () => {
 window.addEventListener('hashchange', () => {
   if (window.location.hash === '#admin') openAdmin();
 
-  // Mobile nav active state on scroll
+  // Mobile nav active state
   const mobileNavLinks = document.querySelectorAll('.mobile-nav a[data-section]');
   const sections = ['hero','about','spaces','menu','booking'];
+
+  function setMobileNavActive(sectionId) {
+    mobileNavLinks.forEach(a => {
+      a.classList.toggle('active', a.dataset.section === sectionId);
+    });
+  }
+
+  // Активируем при клике сразу
+  mobileNavLinks.forEach(a => {
+    a.addEventListener('click', () => setMobileNavActive(a.dataset.section));
+  });
+
+  // Обновляем при скролле
   window.addEventListener('scroll', () => {
     let current = 'hero';
     sections.forEach(id => {
       const el = document.getElementById(id);
-      if (el && window.scrollY >= el.offsetTop - 120) current = id;
+      if (el && window.scrollY >= el.offsetTop - 160) current = id;
     });
-    mobileNavLinks.forEach(a => {
-      a.classList.toggle('active', a.dataset.section === current);
-    });
+    setMobileNavActive(current);
   });
+
+  // Установить начальный активный пункт
+  setMobileNavActive('hero');
 });
 </script>
 
