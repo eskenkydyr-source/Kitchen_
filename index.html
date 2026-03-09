@@ -1505,8 +1505,8 @@
 </section>
 
 <!-- ABOUT -->
-<section>
-  <div id="about">
+<section id="about">
+  <div>
     <div class="about-visual reveal">
       <div class="about-card main">
         <div class="card-text" id="aboutQuote">«Место, где рождаются<br>великие идеи»</div>
@@ -1567,8 +1567,8 @@
 </section>
 
 <!-- BOOKING -->
-<section>
-  <div id="booking">
+<section id="booking">
+  <div>
     <div class="booking-wrap">
       <div>
         <div class="section-tag reveal">Бронирование</div>
@@ -3030,6 +3030,16 @@ function closeKaspi() {
 }
 
 // ============================================================
+//  MOBILE NAV ACTIVE STATE (глобальный скоуп)
+// ============================================================
+function setMobileNavActive(sectionId) {
+  const mobileNavLinks = document.querySelectorAll('.mobile-nav a[data-section]');
+  mobileNavLinks.forEach(a => {
+    a.classList.toggle('active', a.dataset.section === sectionId);
+  });
+}
+
+// ============================================================
 //  INIT
 // ============================================================
 window.addEventListener('DOMContentLoaded', async () => {
@@ -3058,38 +3068,30 @@ window.addEventListener('DOMContentLoaded', async () => {
     colorLight: '#ffffff',
     correctLevel: QRCode.CorrectLevel.H
   });
-});
 
-window.addEventListener('hashchange', () => {
-  if (window.location.hash === '#admin') openAdmin();
-
-  // Mobile nav active state
+  // Mobile nav: активируем при клике сразу
   const mobileNavLinks = document.querySelectorAll('.mobile-nav a[data-section]');
-  const sections = ['hero','about','spaces','menu','booking'];
-
-  function setMobileNavActive(sectionId) {
-    mobileNavLinks.forEach(a => {
-      a.classList.toggle('active', a.dataset.section === sectionId);
-    });
-  }
-
-  // Активируем при клике сразу
+  const navSections = ['hero','about','spaces','menu','booking'];
   mobileNavLinks.forEach(a => {
     a.addEventListener('click', () => setMobileNavActive(a.dataset.section));
   });
 
-  // Обновляем при скролле
+  // Mobile nav: обновляем при скролле
   window.addEventListener('scroll', () => {
     let current = 'hero';
-    sections.forEach(id => {
+    navSections.forEach(id => {
       const el = document.getElementById(id);
       if (el && window.scrollY >= el.offsetTop - 160) current = id;
     });
     setMobileNavActive(current);
   });
 
-  // Установить начальный активный пункт
+  // Mobile nav: установить начальный активный пункт
   setMobileNavActive('hero');
+});
+
+window.addEventListener('hashchange', () => {
+  if (window.location.hash === '#admin') openAdmin();
 });
 </script>
 
